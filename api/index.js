@@ -7,9 +7,15 @@ const PORT = process.env.PORT || 5000;
 
 // Middlewares
 app.use(cors({
-  origin: ['http://localhost:3000', 'https://huerto-hogar-react-m7p5gca1n-jeans-projects-56426119.vercel.app'],
+  origin: [
+    'http://localhost:3000',
+    'https://huerto-hogar-react-m7p5gca1n-jeans-projects-56426119.vercel.app',
+    'https://huerto-hogar-react.vercel.app',
+    'https://*.vercel.app' // Permite todos los dominios de Vercel
+  ],
   credentials: true
 }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
