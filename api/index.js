@@ -5,27 +5,19 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middlewares - CORS permisivo para Vercel
+// Middlewares - CORS configurado para tu frontend
 app.use(cors({
-  origin: function(origin, callback) {
-    // Lista de orígenes permitidos
-    const allowedOrigins = [
-      'http://localhost:3000',
-      'http://localhost:3001',
-    ];
-    
-    // Si no hay origin (peticiones del mismo servidor) o es localhost o termina en .vercel.app
-    if (!origin || allowedOrigins.includes(origin) || (origin && origin.endsWith('.vercel.app'))) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'https://huerto-hogar-react.vercel.app',
+    'https://huerto-hogar-react-git-main-jeans-projects-56426119.vercel.app'
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   exposedHeaders: ['Content-Range', 'X-Content-Range'],
-  maxAge: 86400 // 24 horas
+  maxAge: 86400
 }));
 
 // Middleware para manejar preflight requests
