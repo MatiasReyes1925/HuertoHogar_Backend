@@ -18,7 +18,7 @@ router.get('/:id', getProductById);
 router.use(verifyToken);
 
 router.post('/', createProduct);
-router.get('/my/products', getMyProducts);
+router.get('/my/products', getMyProducts); // Debe estar antes de /:id para evitar conflictos
 router.put('/:id', updateProduct);
 router.delete('/:id', deleteProduct);
 

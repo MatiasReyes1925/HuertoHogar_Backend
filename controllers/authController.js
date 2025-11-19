@@ -14,12 +14,35 @@ const register = async (req, res) => {
       });
     }
 
+    // Validar formato de email básico
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ 
+        message: 'El formato del email no es válido' 
+      });
+    }
+
+    // Validar longitud mínima de contraseña
+    if (password.length < 6) {
+      return res.status(400).json({ 
+        message: 'La contraseña debe tener al menos 6 caracteres' 
+      });
+    }
+
     // Verificar si el usuario ya existe
-    const { data: existingUser } = await supabase
+    const { data: existingUser, error: checkError } = await supabase
       .from('users')
       .select('email')
       .eq('email', email)
       .single();
+
+    // Si hay un error que no sea "no encontrado", es un error real
+    if (checkError && checkError.code !== 'PGRST116') {
+      return res.status(400).json({ 
+        message: 'Error al verificar usuario', 
+        error: checkError.message 
+      });
+    }
 
     if (existingUser) {
       return res.status(400).json({ 
@@ -86,6 +109,14 @@ const login = async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({ 
         message: 'Email y password son requeridos' 
+      });
+    }
+
+    // Validar formato de email básico
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ 
+        message: 'El formato del email no es válido' 
       });
     }
 

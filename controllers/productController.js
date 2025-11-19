@@ -13,6 +13,20 @@ const createProduct = async (req, res) => {
       });
     }
 
+    // Validar que el precio sea un número positivo
+    if (isNaN(price) || parseFloat(price) <= 0) {
+      return res.status(400).json({ 
+        message: 'El precio debe ser un número positivo' 
+      });
+    }
+
+    // Validar que el stock sea un número no negativo si se proporciona
+    if (stock !== undefined && (isNaN(stock) || parseInt(stock) < 0)) {
+      return res.status(400).json({ 
+        message: 'El stock debe ser un número no negativo' 
+      });
+    }
+
     // Insertar producto
     const { data, error } = await supabase
       .from('products')
@@ -88,7 +102,15 @@ const getProductById = async (req, res) => {
       .eq('id', id)
       .single();
 
-    if (error || !data) {
+    // Si hay un error que no sea "no encontrado", es un error real
+    if (error && error.code !== 'PGRST116') {
+      return res.status(400).json({ 
+        message: 'Error al buscar producto', 
+        error: error.message 
+      });
+    }
+
+    if (!data) {
       return res.status(404).json({ 
         message: 'Producto no encontrado' 
       });
@@ -115,11 +137,19 @@ const updateProduct = async (req, res) => {
     const userId = req.userId;
 
     // Verificar que el producto existe y pertenece al usuario
-    const { data: existingProduct } = await supabase
+    const { data: existingProduct, error: fetchError } = await supabase
       .from('products')
       .select('user_id')
       .eq('id', id)
       .single();
+
+    // Si hay un error que no sea "no encontrado", es un error real
+    if (fetchError && fetchError.code !== 'PGRST116') {
+      return res.status(400).json({ 
+        message: 'Error al buscar producto', 
+        error: fetchError.message 
+      });
+    }
 
     if (!existingProduct) {
       return res.status(404).json({ 
@@ -134,11 +164,25 @@ const updateProduct = async (req, res) => {
       });
     }
 
+    // Validar que el precio sea un número positivo si se proporciona
+    if (price !== undefined && (isNaN(price) || parseFloat(price) <= 0)) {
+      return res.status(400).json({ 
+        message: 'El precio debe ser un número positivo' 
+      });
+    }
+
+    // Validar que el stock sea un número no negativo si se proporciona
+    if (stock !== undefined && (isNaN(stock) || parseInt(stock) < 0)) {
+      return res.status(400).json({ 
+        message: 'El stock debe ser un número no negativo' 
+      });
+    }
+
     // Actualizar producto
     const updateData = {};
     if (name) updateData.name = name;
     if (description !== undefined) updateData.description = description;
-    if (price) updateData.price = price;
+    if (price !== undefined) updateData.price = price;
     if (stock !== undefined) updateData.stock = stock;
     updateData.updated_at = new Date().toISOString();
 
@@ -176,11 +220,19 @@ const deleteProduct = async (req, res) => {
     const userId = req.userId;
 
     // Verificar que el producto existe
-    const { data: existingProduct } = await supabase
+    const { data: existingProduct, error: fetchError } = await supabase
       .from('products')
       .select('user_id')
       .eq('id', id)
       .single();
+
+    // Si hay un error que no sea "no encontrado", es un error real
+    if (fetchError && fetchError.code !== 'PGRST116') {
+      return res.status(400).json({ 
+        message: 'Error al buscar producto', 
+        error: fetchError.message 
+      });
+    }
 
     if (!existingProduct) {
       return res.status(404).json({ 

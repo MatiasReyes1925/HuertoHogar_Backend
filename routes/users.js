@@ -15,7 +15,15 @@ router.get('/me', async (req, res) => {
       .eq('id', req.userId)
       .single();
 
-    if (error || !data) {
+    // Si hay un error que no sea "no encontrado", es un error real
+    if (error && error.code !== 'PGRST116') {
+      return res.status(400).json({ 
+        message: 'Error al buscar usuario', 
+        error: error.message 
+      });
+    }
+
+    if (!data) {
       return res.status(404).json({ 
         message: 'Usuario no encontrado' 
       });

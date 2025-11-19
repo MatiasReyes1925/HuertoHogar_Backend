@@ -1,5 +1,11 @@
 const jwt = require('jsonwebtoken');
 
+// Verificar que JWT_SECRET esté configurado
+if (!process.env.JWT_SECRET) {
+  console.error('❌ Error: JWT_SECRET no está configurado en las variables de entorno');
+  process.exit(1);
+}
+
 // Middleware para verificar el token JWT
 const verifyToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
