@@ -5,22 +5,26 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middlewares - CORS configurado para tu frontend
+// CORS permisivo para todas las URLs de Vercel
 app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'https://huerto-hogar-react.vercel.app',
-    'https://huerto-hogar-react-git-main-jeans-projects-56426119.vercel.app'
-  ],
+  origin: function(origin, callback) {
+    // Permite peticiones sin origin (como Postman) o desde localhost o vercel.app
+    if (!origin || 
+        origin.includes('localhost') || 
+        origin.endsWith('.vercel.app')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
   exposedHeaders: ['Content-Range', 'X-Content-Range'],
   maxAge: 86400
 }));
 
-// Middleware para manejar preflight requests
+// IMPORTANTE: Manejar preflight requests ANTES de cualquier otra ruta
 app.options('*', cors());
 
 app.use(express.json());
@@ -41,8 +45,9 @@ app.use('/api/categories', categoryRoutes);
 // Ruta de prueba
 app.get('/', (req, res) => {
   res.json({ 
-    message: 'API HuertoHogar funcionando en Vercel 🚀',
+    message: 'API HuertoHogar funcionando 🚀',
     version: '1.0.0',
+    cors: 'Enabled for all Vercel domains',
     endpoints: {
       auth: '/api/auth (register, login)',
       products: '/api/products (CRUD)',
