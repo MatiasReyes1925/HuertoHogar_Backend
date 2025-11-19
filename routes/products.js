@@ -10,16 +10,16 @@ const {
   getMyProducts
 } = require('../controllers/productController');
 
-// Rutas públicas (sin autenticación)
-router.get('/', getAllProducts);              // Obtener todos los productos
-router.get('/:id', getProductById);           // Obtener un producto por ID
+// Rutas públicas
+router.get('/', getAllProducts);
+router.get('/:id', getProductById);
 
-// Rutas protegidas (requieren autenticación)
-router.use(verifyToken);                      // Aplicar middleware a todas las rutas siguientes
+// Rutas protegidas
+router.use(verifyToken);
 
-router.post('/', createProduct);              // Crear producto (cualquier usuario autenticado)
-router.get('/my/products', getMyProducts);    // Obtener mis productos
-router.put('/:id', updateProduct);            // Actualizar producto (dueño o admin)
-router.delete('/:id', deleteProduct);         // Eliminar producto (dueño o admin)
+router.post('/', createProduct);
+router.get('/my/products', getMyProducts);
+router.put('/:id', updateProduct);
+router.delete('/:id', deleteProduct);
 
 module.exports = router;
