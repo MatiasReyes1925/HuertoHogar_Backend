@@ -1,54 +1,8 @@
 require('dotenv').config();
 const express = require('express');
-const cors = require('cors');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-
-// ============================================
-// CONFIGURACIÓN DE CORS (MUY IMPORTANTE)
-// ============================================
-
-// Configurar CORS ANTES de cualquier otra cosa
-const corsOptions = {
-  origin: function (origin, callback) {
-    // Permite peticiones sin origin (Postman, curl, etc.)
-    if (!origin) {
-      return callback(null, true);
-    }
-    
-    // Permite localhost en cualquier puerto
-    if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
-      return callback(null, true);
-    }
-    
-    // Permite TODAS las URLs de Vercel
-    if (origin.endsWith('.vercel.app')) {
-      return callback(null, true);
-    }
-    
-    // Rechaza otros orígenes
-    callback(new Error('Not allowed by CORS'));
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: [
-    'Content-Type',
-    'Authorization',
-    'X-Requested-With',
-    'Accept',
-    'Origin'
-  ],
-  exposedHeaders: ['Content-Range', 'X-Content-Range'],
-  maxAge: 86400, // 24 horas
-  optionsSuccessStatus: 200
-};
-
-// Aplicar CORS a todas las rutas
-app.use(cors(corsOptions));
-
-// Manejar preflight requests explícitamente
-app.options('*', cors(corsOptions));
 
 // ============================================
 // MIDDLEWARES
@@ -57,9 +11,9 @@ app.options('*', cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Logging middleware (útil para debugging)
+// Logging middleware
 app.use((req, res, next) => {
-  console.log(`${req.method} ${req.path} - Origin: ${req.headers.origin || 'No origin'}`);
+  console.log(`${req.method} ${req.path}`);
   next();
 });
 
@@ -89,7 +43,6 @@ app.get('/', (req, res) => {
   res.json({ 
     message: 'API HuertoHogar funcionando en Vercel 🚀',
     version: '1.0.0',
-    cors: 'Enabled for all Vercel domains',
     timestamp: new Date().toISOString(),
     endpoints: {
       auth: '/api/auth (register, login)',
@@ -124,8 +77,7 @@ app.use((req, res) => {
 app.use((err, req, res, next) => {
   console.error('Error:', err.message);
   res.status(err.status || 500).json({
-    message: err.message || 'Error interno del servidor',
-    ...(process.env.NODE_ENV !== 'production' && { stack: err.stack })
+    message: err.message || 'Error interno del servidor'
   });
 });
 
@@ -136,7 +88,6 @@ app.use((err, req, res, next) => {
 if (process.env.NODE_ENV !== 'production') {
   app.listen(PORT, () => {
     console.log(`✅ Servidor corriendo en http://localhost:${PORT}`);
-    console.log(`📍 CORS habilitado para localhost y Vercel`);
   });
 }
 
